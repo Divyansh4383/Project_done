@@ -1,0 +1,87 @@
+# SprintForge Simplification Task
+
+## Phase 0 — Repo scan and plan
+- [x] Scan repo structure and all key source files
+- [x] Write implementation_plan.md and get user approval
+- [x] Create branch `simplify-and-improve`
+
+## Step 0 — Rename package ✅
+- [x] Move source tree from `dev/sreedaya/sprintforge` → `dev/divyansh/sprintforge`
+- [x] Update `groupId` in [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [x] Update all `package` / `import` lines in 51 main + 9 test files
+- [x] Update [spotbugs-exclude.xml](file:///C:/Users/VICTUS/Desktop/Project1/spotbugs-exclude.xml)
+- [x] Run `./mvnw clean compile`, commit
+
+## Step 1 — Remove S3 attachment module
+- [ ] Delete `attachment/` package (5 files)
+- [ ] Remove AWS S3 dependency + `aws.sdk.version` from [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [ ] Remove `app.storage.s3.*` lines from [application.properties](file:///C:/Users/VICTUS/Desktop/Project1/src/main/resources/application.properties)
+- [ ] Remove `S3_ENABLED`, `S3_BUCKET`, `AWS_REGION` from [.env.example](file:///C:/Users/VICTUS/Desktop/Project1/.env.example)
+- [ ] Add `V6__drop_attachments.sql`
+- [ ] Update `PostgresMigrationIntegrationTest` and docs
+- [ ] Run `./mvnw clean verify`, commit
+
+## Step 2 — Remove WebSocket/STOMP
+- [ ] Delete [config/WebSocketConfig.java](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/WebSocketConfig.java)
+- [ ] Delete [realtime/ProjectEventPublisher.java](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/realtime/ProjectEventPublisher.java)
+- [ ] Remove `spring-boot-starter-websocket` from [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [ ] Remove `/ws/**` from [SecurityConfig](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#28-124)
+- [ ] Remove `events.publish(...)` calls + constructor param in [ProjectController](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/project/ProjectController.java#33-185), [SprintService](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/sprint/SprintService.java#24-149), `WorkItemController`, `WorkItemCommentController`
+- [ ] Fix [SprintServiceTest](file:///C:/Users/VICTUS/Desktop/Project1/src/test/java/dev/sreedaya/sprintforge/sprint/SprintServiceTest.java#11-37) (remove mock of [ProjectEventPublisher](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/realtime/ProjectEventPublisher.java#8-25))
+- [ ] Run `./mvnw clean verify`, commit
+
+## Step 3 — Remove Prometheus/Grafana/observability (keep Actuator health)
+- [ ] Delete `observability/` folder
+- [ ] Remove `prometheus` + `grafana` services + `grafana-data` volume from [compose.yaml](file:///C:/Users/VICTUS/Desktop/Project1/compose.yaml)
+- [ ] Remove `METRICS_KEY` env var from [compose.yaml](file:///C:/Users/VICTUS/Desktop/Project1/compose.yaml)
+- [ ] Remove `micrometer-registry-prometheus` from [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [ ] Edit [application.properties](file:///C:/Users/VICTUS/Desktop/Project1/src/main/resources/application.properties): remove prometheus/percentiles-histogram/metrics-tag lines, set exposure to `health,info`
+- [ ] Remove [metricsKey](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#112-123) param, `actuator/prometheus` rule, [constantTimeEquals](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#103-111), [metricsKeyMatches](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#112-123) from [SecurityConfig](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#28-124)
+- [ ] Remove `app.metrics.key` + `METRICS_KEY` from [.env.example](file:///C:/Users/VICTUS/Desktop/Project1/.env.example) and [render.yaml](file:///C:/Users/VICTUS/Desktop/Project1/render.yaml)
+- [ ] Delete [NotificationOutboxMetrics.java](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/notification/NotificationOutboxMetrics.java)
+- [ ] Remove `MeterRegistry` counters from [SprintService](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/sprint/SprintService.java#24-149)
+- [ ] Remove counters from `NotificationOutboxProcessor`, adjust `NotificationOutboxProcessorTest`
+- [ ] Remove Prometheus test from [AuthFlowIntegrationTest](file:///C:/Users/VICTUS/Desktop/Project1/src/test/java/dev/sreedaya/sprintforge/AuthFlowIntegrationTest.java#21-136)
+- [ ] Run `./mvnw clean verify`, commit
+
+## Step 4 — k6: remove stress profile
+- [ ] Remove `stress` export from [performance/k6/sprintforge.js](file:///C:/Users/VICTUS/Desktop/Project1/performance/k6/sprintforge.js)
+- [ ] Change `options: [smoke, load, stress]` → `[smoke, load]` in [performance.yml](file:///C:/Users/VICTUS/Desktop/Project1/.github/workflows/performance.yml)
+- [ ] Update [docs/performance.md](file:///C:/Users/VICTUS/Desktop/Project1/docs/performance.md)
+- [ ] Commit
+
+## Step 5 — Remove SonarCloud, SpotBugs, OWASP; keep Trivy
+- [ ] Delete [.github/workflows/sonarcloud.yml](file:///C:/Users/VICTUS/Desktop/Project1/.github/workflows/sonarcloud.yml)
+- [ ] Delete [spotbugs-exclude.xml](file:///C:/Users/VICTUS/Desktop/Project1/spotbugs-exclude.xml)
+- [ ] Delete [owasp-suppressions.xml](file:///C:/Users/VICTUS/Desktop/Project1/owasp-suppressions.xml)
+- [ ] Delete [.github/workflows/dependency-review.yml](file:///C:/Users/VICTUS/Desktop/Project1/.github/workflows/dependency-review.yml)
+- [ ] Remove SpotBugs plugin + `spotbugs.version` from [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [ ] Remove OWASP plugin + `dependency-check.version` from [pom.xml](file:///C:/Users/VICTUS/Desktop/Project1/pom.xml)
+- [ ] Remove SpotBugs step from [ci.yml](file:///C:/Users/VICTUS/Desktop/Project1/.github/workflows/ci.yml)
+- [ ] Run `./mvnw clean verify`, commit
+
+## Step 6 — Email outbox: verify docs (no functional changes)
+- [ ] Check [docs/architecture.md](file:///C:/Users/VICTUS/Desktop/Project1/docs/architecture.md), [.env.example](file:///C:/Users/VICTUS/Desktop/Project1/.env.example), README describe outbox correctly
+- [ ] Fix any missing descriptions
+
+## Step 7 — Fix loose points (with tests)
+- [ ] Fix `PUT /work-items/{id}` status-reset bug
+- [ ] Fix refresh token error message
+- [ ] Add prod-profile JWT secret guard
+- [ ] Add ARCHIVED project write guard (returns 409)
+- [ ] Add `GET /api/v1/projects/{id}/members` endpoint
+- [ ] Add `GET /api/v1/auth/me` endpoint
+- [ ] Document `app.bootstrap-admin.*` in [.env.example](file:///C:/Users/VICTUS/Desktop/Project1/.env.example) and README
+- [ ] Ask user about in-memory login rate limiting
+- [ ] Run `./mvnw clean verify`, commit
+
+## Step 8 — Frontend (React + Vite, JS)
+- [ ] Create `frontend/` with Vite + React (JSX, no TS)
+- [ ] Build all pages (Login, Projects, Kanban, Sprints, Comments, Audit, Members, Admin)
+- [ ] Update [Dockerfile](file:///C:/Users/VICTUS/Desktop/Project1/Dockerfile) to multi-stage build
+- [ ] Update [SecurityConfig](file:///C:/Users/VICTUS/Desktop/Project1/src/main/java/dev/sreedaya/sprintforge/config/SecurityConfig.java#28-124) for static file serving + SPA fallback
+- [ ] `npm run build`, `docker compose up` end-to-end check
+
+## Step 9 — Update README.md
+
+## Step 10 — Write docs/PROJECT_GUIDE.md

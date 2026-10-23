@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Complete pre-execution change plan for SprintForge simplification project. Covers Steps 0–10: package rename, S3/WebSocket/observability removal, k6 simplification, static-analysis cleanup, outbox doc verification, 7 bug/feature fixes, React frontend, README update, and PROJECT_GUIDE.md. Lists every file to delete, modify, or create, with the exact change per file. Includes verification plan using ./mvnw clean verify after each step.",
+  "updatedAt": "2026-10-22T20:12:58.113715500Z"
+}
